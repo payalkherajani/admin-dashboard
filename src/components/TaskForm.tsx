@@ -18,7 +18,7 @@ interface TaskFormInputs {
 }
 
 interface Props {
-  initialData?: Task;
+  initialData?: Task | null;
   onSubmit: () => void;
 }
 

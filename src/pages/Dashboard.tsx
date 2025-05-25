@@ -5,12 +5,14 @@ import { useTaskContext } from "../context/TaskContext";
 import FilterBar from "../components/FilterBar";
 import TaskTable from "../components/TaskTable";
 import TaskDialog from "../components/TaskDialog";
+import type { Task } from "../types/task";
 
 export default function Dashboard() {
-  const { tasks } = useTaskContext();
+  const { tasks, setTasks } = useTaskContext();
   const [statusFilter, setStatusFilter] = useState("");
   const [dueFilter, setDueFilter] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
@@ -24,6 +26,15 @@ export default function Dashboard() {
         : true;
     return matchesStatus && matchesDue;
   });
+
+    const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setOpenDialog(true);
+  };
+
+  const handleDeleteTask = (id: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+  };
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -44,9 +55,9 @@ export default function Dashboard() {
         setDue={setDueFilter}
       />
 
-      <TaskTable tasks={filteredTasks} />
+      <TaskTable tasks={filteredTasks} onEdit={handleEditTask} onDelete={handleDeleteTask} />
 
-      <TaskDialog open={openDialog} onClose={() => setOpenDialog(false)} />
+      <TaskDialog open={openDialog} onClose={() => setOpenDialog(false)} initialData={selectedTask} />
     </Container>
   );
 }

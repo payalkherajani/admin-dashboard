@@ -14,7 +14,7 @@ import type { Task } from "../types/task";
 interface TaskDialogProps {
   open: boolean;
   onClose: () => void;
-  initialData?: Task;
+  initialData?: Task | null;
 }
 
 export default function TaskDialog({ open, onClose, initialData }: TaskDialogProps) {
