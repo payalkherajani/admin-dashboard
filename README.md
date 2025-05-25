@@ -16,7 +16,7 @@ A responsive task management dashboard built with **React**, **Material-UI (MUI)
 
 ## 📸 DeployedLink
 
-> [Deployed Link For Admin Dashboard](https://68330474ea60d8b901dec071--admintaskboard.netlify.app/)
+> [Deployed Link For Admin Dashboard](https://admintaskboard.netlify.app/)
 
 ---
 
