@@ -1,25 +1,40 @@
-interface Props {
+// src/components/FilterBar.tsx
+import { TextField, MenuItem, Stack } from "@mui/material";
+
+interface FilterBarProps {
   status: string;
   setStatus: (status: string) => void;
   due: string;
-  setDue: (date: string) => void;
+  setDue: (due: string) => void;
 }
 
-export default function FilterBar({ status, setStatus, due, setDue }: Props) {
+export default function FilterBar({ status, setStatus, due, setDue }: FilterBarProps) {
   return (
-    <div className="flex flex-col md:flex-row gap-4 mb-4">
-      <select value={status} onChange={(e) => setStatus(e.target.value)} className="p-2 border rounded">
-        <option value="">All Status</option>
-        <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Done">Done</option>
-      </select>
-      <input
-        type="date"
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
+      <TextField
+        label="Filter by Status"
+        select
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        fullWidth
+      >
+        <MenuItem value="">All</MenuItem>
+        <MenuItem value="To Do">To Do</MenuItem>
+        <MenuItem value="In Progress">In Progress</MenuItem>
+        <MenuItem value="Done">Done</MenuItem>
+      </TextField>
+
+      <TextField
+        label="Due Date Filter"
+        select
         value={due}
         onChange={(e) => setDue(e.target.value)}
-        className="p-2 border rounded"
-      />
-    </div>
+        fullWidth
+      >
+        <MenuItem value="">All</MenuItem>
+        <MenuItem value="before">Due Before Today</MenuItem>
+        <MenuItem value="after">Due After Today</MenuItem>
+      </TextField>
+    </Stack>
   );
 }

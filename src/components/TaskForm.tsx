@@ -1,3 +1,9 @@
+import {
+  Button,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import type { Task, TaskStatus } from "../types/task";
 import { useTaskContext } from "../context/TaskContext";
@@ -11,39 +17,105 @@ interface TaskFormInputs {
   dueDate: string;
 }
 
-export default function TaskForm() {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TaskFormInputs>();
+interface Props {
+  initialData?: Task;
+  onSubmit: () => void;
+}
+
+export default function TaskForm({ initialData, onSubmit }: Props) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TaskFormInputs>({
+    defaultValues: initialData ?? {
+      title: "",
+      description: "",
+      status: "To Do",
+      assignedUser: "",
+      dueDate: "",
+    },
+  });
+
   const { setTasks } = useTaskContext();
 
-  const onSubmit = (data: TaskFormInputs) => {
+  const handleFormSubmit = (data: TaskFormInputs) => {
     const newTask: Task = {
-      id: uuidv4(),
-      ...data
+      id: initialData?.id ?? uuidv4(),
+      ...data,
     };
-    setTasks((prev) => [...prev, newTask]);
+
+    setTasks((prev) =>
+      initialData
+        ? prev.map((task) => (task.id === initialData.id ? newTask : task))
+        : [...prev, newTask]
+    );
+
     reset();
+    onSubmit();
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-lg">
-      <input placeholder="Title" {...register("title", { required: true })} className="w-full p-2 border rounded" />
-      {errors.title && <span className="text-red-500 text-sm">Title is required</span>}
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <Typography variant="h6" gutterBottom>
+        {initialData ? "Edit Task" : "Add New Task"}
+      </Typography>
 
-      <textarea placeholder="Description" {...register("description")} className="w-full p-2 border rounded" />
+      <TextField
+        label="Title"
+        fullWidth
+        {...register("title", { required: true })}
+        error={!!errors.title}
+        helperText={errors.title && "Title is required"}
+        style={{ marginBottom: '1rem'}}
+      />
 
-      <select {...register("status")} className="w-full p-2 border rounded">
-        <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Done">Done</option>
-      </select>
+      <TextField
+        label="Description"
+        fullWidth
+        multiline
+        rows={3}
+        {...register("description")}
+        style={{ marginBottom: '1rem'}}
+      />
 
-      <input placeholder="Assigned User" {...register("assignedUser", { required: true })} className="w-full p-2 border rounded" />
-      {errors.assignedUser && <span className="text-red-500 text-sm">Assigned user is required</span>}
+      <TextField
+        label="Status"
+        fullWidth
+        select
+        defaultValue="To Do"
+        {...register("status")}
+        style={{ marginBottom: '1rem'}}
+      >
+        <MenuItem value="To Do">To Do</MenuItem>
+        <MenuItem value="In Progress">In Progress</MenuItem>
+        <MenuItem value="Done">Done</MenuItem>
+      </TextField>
 
-      <input type="date" {...register("dueDate", { required: true })} className="w-full p-2 border rounded" />
-      {errors.dueDate && <span className="text-red-500 text-sm">Due date is required</span>}
+      <TextField
+        label="Assigned User"
+        fullWidth
+        {...register("assignedUser", { required: true })}
+        error={!!errors.assignedUser}
+        helperText={errors.assignedUser && "Assigned user is required"}
+        style={{ marginBottom: '1rem'}}
+      />
 
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Add Task</button>
+      <TextField
+        label="Due Date"
+        fullWidth
+        type="date"
+        InputLabelProps={{ shrink: true }}
+        {...register("dueDate", { required: true })}
+        error={!!errors.dueDate}
+        helperText={errors.dueDate && "Due date is required"}
+        style={{ marginBottom: '1rem'}}
+      />
+
+      <Button type="submit" variant="contained" color="primary">
+        {initialData ? "Update Task" : "Add Task"}
+      </Button>
     </form>
   );
 }
