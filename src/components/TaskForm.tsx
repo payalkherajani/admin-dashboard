@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import type { Task, TaskStatus } from "../types/task";
 import { useTaskContext } from "../context/TaskContext";
 import { v4 as uuidv4 } from "uuid";
+import { useEffect } from "react";
+import { Controller } from "react-hook-form";
 
 interface TaskFormInputs {
   title: string;
@@ -27,16 +29,24 @@ export default function TaskForm({ initialData, onSubmit }: Props) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
-  } = useForm<TaskFormInputs>({
-    defaultValues: initialData ?? {
-      title: "",
-      description: "",
-      status: "To Do",
-      assignedUser: "",
-      dueDate: "",
-    },
-  });
+  } = useForm<TaskFormInputs>({});
+
+  useEffect(() => {
+    if (initialData) {
+
+      reset(initialData);
+    } else {
+      reset({
+        title: "",
+        description: "",
+        status: "To Do",
+        assignedUser: "",
+        dueDate: "",
+      });
+    }
+  }, [initialData, reset]);
 
   const { setTasks } = useTaskContext();
 
@@ -56,6 +66,8 @@ export default function TaskForm({ initialData, onSubmit }: Props) {
     onSubmit();
   };
 
+  console.log(initialData, "initialData")
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <Typography variant="h6" gutterBottom>
@@ -68,7 +80,7 @@ export default function TaskForm({ initialData, onSubmit }: Props) {
         {...register("title", { required: true })}
         error={!!errors.title}
         helperText={errors.title && "Title is required"}
-        style={{ marginBottom: '1rem'}}
+        style={{ marginBottom: '1rem' }}
       />
 
       <TextField
@@ -77,21 +89,30 @@ export default function TaskForm({ initialData, onSubmit }: Props) {
         multiline
         rows={3}
         {...register("description")}
-        style={{ marginBottom: '1rem'}}
+        style={{ marginBottom: '1rem' }}
       />
 
-      <TextField
-        label="Status"
-        fullWidth
-        select
+      <Controller
+        name="status"
+        control={control}
         defaultValue="To Do"
-        {...register("status")}
-        style={{ marginBottom: '1rem'}}
-      >
-        <MenuItem value="To Do">To Do</MenuItem>
-        <MenuItem value="In Progress">In Progress</MenuItem>
-        <MenuItem value="Done">Done</MenuItem>
-      </TextField>
+        rules={{ required: true }}
+        render={({ field }) => (
+          <TextField
+            {...field}
+            select
+            label="Status"
+            fullWidth
+            error={!!errors.status}
+            helperText={errors.status && "Status is required"}
+            style={{ marginBottom: '1rem' }}
+          >
+            <MenuItem value="To Do">To Do</MenuItem>
+            <MenuItem value="In Progress">In Progress</MenuItem>
+            <MenuItem value="Done">Done</MenuItem>
+          </TextField>
+        )}
+      />
 
       <TextField
         label="Assigned User"
@@ -99,18 +120,17 @@ export default function TaskForm({ initialData, onSubmit }: Props) {
         {...register("assignedUser", { required: true })}
         error={!!errors.assignedUser}
         helperText={errors.assignedUser && "Assigned user is required"}
-        style={{ marginBottom: '1rem'}}
+        style={{ marginBottom: '1rem' }}
       />
 
       <TextField
         label="Due Date"
         fullWidth
         type="date"
-        InputLabelProps={{ shrink: true }}
         {...register("dueDate", { required: true })}
         error={!!errors.dueDate}
         helperText={errors.dueDate && "Due date is required"}
-        style={{ marginBottom: '1rem'}}
+        style={{ marginBottom: '1rem' }}
       />
 
       <Button type="submit" variant="contained" color="primary">
